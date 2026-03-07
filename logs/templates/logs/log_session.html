@@ -1,0 +1,318 @@
+{% extends 'base.html' %}
+
+{% block title %}Log Session — CS50 Study Tracker{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* ── Form card ── */
+  .form-card {
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  .form-card-header {
+    padding: 1.6rem 1.8rem 1.2rem;
+    border-bottom: 1px solid var(--brand-border);
+  }
+
+  .form-card-header h2 {
+    font-family: var(--brand-mono);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--brand-text);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .form-card-header h2 .header-icon {
+    width: 34px; height: 34px;
+    border-radius: 9px;
+    background: rgba(79,142,247,0.12);
+    color: var(--brand-accent);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .form-card-header p {
+    font-size: 0.83rem;
+    color: var(--brand-muted);
+    margin: 0.35rem 0 0 2.65rem;
+  }
+
+  .form-card-body {
+    padding: 1.8rem;
+  }
+
+  /* ── Field groups ── */
+  .field-group {
+    margin-bottom: 1.3rem;
+  }
+
+  /* ── Inline row ── */
+  .form-row-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  @media (max-width: 540px) {
+    .form-row-split { grid-template-columns: 1fr; }
+  }
+
+  /* ── Char counter ── */
+  .char-hint {
+    font-size: 0.75rem;
+    color: var(--brand-muted);
+    margin-top: 0.3rem;
+    font-family: var(--brand-mono);
+  }
+
+  /* ── Submit row ── */
+  .form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding-top: 1.4rem;
+    border-top: 1px solid var(--brand-border);
+    margin-top: 0.4rem;
+  }
+
+  .btn-cancel {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--brand-muted);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 7px;
+    transition: color 0.15s, background 0.15s;
+  }
+
+  .btn-cancel:hover {
+    color: var(--brand-text);
+    background: var(--brand-border);
+  }
+
+  .btn-submit {
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.58rem 1.6rem;
+    border-radius: 8px;
+    border: none;
+    background: var(--brand-accent);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background 0.18s, box-shadow 0.18s, transform 0.1s;
+    cursor: pointer;
+  }
+
+  .btn-submit:hover {
+    background: #6ba3f8;
+    box-shadow: 0 4px 20px rgba(79,142,247,0.4);
+    transform: translateY(-1px);
+  }
+
+  .btn-submit:active { transform: translateY(0); }
+
+  /* ── Textarea ── */
+  textarea.form-control { min-height: 110px; resize: vertical; }
+
+  /* ── Input number arrows hide ── */
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button { opacity: 0.3; }
+
+  /* ── Error feedback ── */
+  .errorlist {
+    list-style: none;
+    padding: 0;
+    margin: 0.3rem 0 0;
+  }
+
+  .errorlist li {
+    font-size: 0.78rem;
+    color: var(--brand-danger);
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .errorlist li::before {
+    content: '\f33a';
+    font-family: 'Bootstrap Icons';
+    font-size: 0.75rem;
+  }
+
+  /* ── Fade in ── */
+  .fade-up { opacity:0; transform:translateY(14px); animation: fadeUp 0.4s ease forwards; }
+  @keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── Page Header ── -->
+<div class="page-header text-center mb-4">
+  <h1><i class="bi bi-plus-circle me-2" style="color: var(--brand-accent);"></i>Log a Study Session</h1>
+  <p>Record what you studied, for how long, and any notes worth keeping.</p>
+</div>
+
+<!-- ── Form Card ── -->
+<div class="form-card fade-up">
+  <div class="cs-card">
+
+    <!-- Card Header -->
+    <div class="form-card-header">
+      <h2>
+        <span class="header-icon"><i class="bi bi-journal-plus"></i></span>
+        New Session
+      </h2>
+      <p>All fields marked with <span style="color:var(--brand-danger);">*</span> are required.</p>
+    </div>
+
+    <!-- Card Body -->
+    <div class="form-card-body">
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        <!-- Topic -->
+        <div class="field-group">
+          <label class="form-label" for="{{ form.topic.id_for_label }}">
+            Topic <span style="color:var(--brand-danger);">*</span>
+          </label>
+          <input
+            type="text"
+            id="{{ form.topic.id_for_label }}"
+            name="{{ form.topic.html_name }}"
+            class="form-control {% if form.topic.errors %}is-invalid{% endif %}"
+            placeholder="e.g. Binary Search Trees"
+            value="{{ form.topic.value|default:'' }}"
+            maxlength="100"
+            required
+          />
+          {% if form.topic.errors %}
+            <ul class="errorlist">{% for e in form.topic.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+          {% endif %}
+          <div class="char-hint">What concept or lecture did you focus on?</div>
+        </div>
+
+        <!-- Week + Date row -->
+        <div class="form-row-split">
+
+          <!-- Week Number -->
+          <div class="field-group">
+            <label class="form-label" for="{{ form.week_number.id_for_label }}">
+              Week # <span style="color:var(--brand-danger);">*</span>
+            </label>
+            <input
+              type="number"
+              id="{{ form.week_number.id_for_label }}"
+              name="{{ form.week_number.html_name }}"
+              class="form-control {% if form.week_number.errors %}is-invalid{% endif %}"
+              placeholder="e.g. 3"
+              value="{{ form.week_number.value|default:'' }}"
+              min="0"
+              max="52"
+              required
+            />
+            {% if form.week_number.errors %}
+              <ul class="errorlist">{% for e in form.week_number.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+            {% endif %}
+          </div>
+
+          <!-- Date -->
+          <div class="field-group">
+            <label class="form-label" for="{{ form.date.id_for_label }}">
+              Date <span style="color:var(--brand-danger);">*</span>
+            </label>
+            <input
+              type="date"
+              id="{{ form.date.id_for_label }}"
+              name="{{ form.date.html_name }}"
+              class="form-control {% if form.date.errors %}is-invalid{% endif %}"
+              value="{{ form.date.value|default:'' }}"
+              required
+            />
+            {% if form.date.errors %}
+              <ul class="errorlist">{% for e in form.date.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+            {% endif %}
+          </div>
+
+        </div>
+
+        <!-- Duration -->
+        <div class="field-group">
+          <label class="form-label" for="{{ form.duration_minutes.id_for_label }}">
+            Duration (minutes) <span style="color:var(--brand-danger);">*</span>
+          </label>
+          <div class="input-group">
+            <span class="input-group-text" style="background: var(--brand-surface); border-color: var(--brand-border); color: var(--brand-muted);">
+              <i class="bi bi-stopwatch"></i>
+            </span>
+            <input
+              type="number"
+              id="{{ form.duration_minutes.id_for_label }}"
+              name="{{ form.duration_minutes.html_name }}"
+              class="form-control {% if form.duration_minutes.errors %}is-invalid{% endif %}"
+              placeholder="e.g. 90"
+              value="{{ form.duration_minutes.value|default:'' }}"
+              min="1"
+              max="600"
+              required
+            />
+          </div>
+          {% if form.duration_minutes.errors %}
+            <ul class="errorlist">{% for e in form.duration_minutes.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+          {% endif %}
+          <div class="char-hint">How many minutes did you study?</div>
+        </div>
+
+        <!-- Notes -->
+        <div class="field-group">
+          <label class="form-label" for="{{ form.notes.id_for_label }}">
+            Notes <span style="color: var(--brand-muted); font-style:italic; text-transform:none; font-family: var(--brand-sans); font-size:0.75rem; letter-spacing:0;">(optional)</span>
+          </label>
+          <textarea
+            id="{{ form.notes.id_for_label }}"
+            name="{{ form.notes.html_name }}"
+            class="form-control {% if form.notes.errors %}is-invalid{% endif %}"
+            placeholder="Key takeaways, questions, resources used…"
+          >{{ form.notes.value|default:'' }}</textarea>
+          {% if form.notes.errors %}
+            <ul class="errorlist">{% for e in form.notes.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+          {% endif %}
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <a href="{% url 'dashboard' %}" class="btn-cancel">
+            <i class="bi bi-arrow-left me-1"></i>Cancel
+          </a>
+          <button type="submit" class="btn-submit">
+            <i class="bi bi-check-lg"></i> Save Session
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Auto-fill today's date if empty
+  (function () {
+    const dateInput = document.getElementById('{{ form.date.id_for_label }}');
+    if (dateInput && !dateInput.value) {
+      const today = new Date().toISOString().split('T')[0];
+      dateInput.value = today;
+    }
+  })();
+</script>
+{% endblock %}

@@ -1,0 +1,302 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard — CS50 Study Tracker{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* ── Summary Cards ── */
+  .stat-card {
+    position: relative;
+    overflow: hidden;
+    padding: 1.5rem 1.6rem;
+    border-radius: 12px;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--card-accent, var(--brand-accent));
+    border-radius: 12px 12px 0 0;
+  }
+
+  .stat-card .stat-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+    background: var(--card-icon-bg, rgba(79,142,247,0.12));
+    color: var(--card-accent, var(--brand-accent));
+    margin-bottom: 1rem;
+  }
+
+  .stat-card .stat-label {
+    font-family: var(--brand-mono);
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--brand-muted);
+    margin-bottom: 0.4rem;
+  }
+
+  .stat-card .stat-value {
+    font-family: var(--brand-mono);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--brand-text);
+    line-height: 1;
+    margin-bottom: 0.35rem;
+  }
+
+  .stat-card .stat-sub {
+    font-size: 0.8rem;
+    color: var(--brand-muted);
+  }
+
+  /* Card accent variants */
+  .stat-hours  { --card-accent: var(--brand-accent);  --card-icon-bg: rgba(79,142,247,0.12); }
+  .stat-week   { --card-accent: var(--brand-success); --card-icon-bg: rgba(34,197,94,0.12);  }
+  .stat-topic  { --card-accent: var(--brand-warning);  --card-icon-bg: rgba(245,158,11,0.12); }
+
+  /* ── Section heading ── */
+  .section-heading {
+    font-family: var(--brand-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--brand-muted);
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--brand-border);
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* ── Topic badge ── */
+  .topic-badge {
+    display: inline-block;
+    padding: 0.25em 0.65em;
+    border-radius: 5px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    background: rgba(79,142,247,0.12);
+    color: var(--brand-accent);
+    font-family: var(--brand-mono);
+    max-width: 18ch;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ── Duration pill ── */
+  .duration-pill {
+    font-family: var(--brand-mono);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--brand-success);
+  }
+
+  /* ── Week chip ── */
+  .week-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-family: var(--brand-mono);
+    font-size: 0.75rem;
+    background: rgba(124,58,237,0.12);
+    color: #a78bfa;
+    border-radius: 5px;
+    padding: 0.2em 0.55em;
+  }
+
+  /* ── Action buttons ── */
+  .btn-action {
+    width: 30px; height: 30px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 6px;
+    border: 1px solid var(--brand-border);
+    background: transparent;
+    font-size: 0.8rem;
+    transition: all 0.16s;
+    text-decoration: none;
+  }
+
+  .btn-action-edit  { color: var(--brand-accent); }
+  .btn-action-edit:hover  { border-color: var(--brand-accent); background: rgba(79,142,247,0.1); color: var(--brand-accent); }
+
+  .btn-action-del   { color: var(--brand-danger); }
+  .btn-action-del:hover   { border-color: var(--brand-danger); background: rgba(239,68,68,0.1); color: var(--brand-danger); }
+
+  /* ── Date cell ── */
+  .date-cell {
+    font-family: var(--brand-mono);
+    font-size: 0.82rem;
+    color: var(--brand-muted);
+  }
+
+  /* ── Empty state ── */
+  .empty-state {
+    padding: 3.5rem 2rem;
+    text-align: center;
+  }
+
+  .empty-state .empty-icon {
+    font-size: 2.5rem;
+    color: var(--brand-border);
+    margin-bottom: 1rem;
+  }
+
+  .empty-state p {
+    color: var(--brand-muted);
+    font-size: 0.9rem;
+    margin: 0;
+  }
+
+  /* ── Fade-in ── */
+  .fade-up {
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.4s ease forwards;
+  }
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .delay-1 { animation-delay: 0.05s; }
+  .delay-2 { animation-delay: 0.10s; }
+  .delay-3 { animation-delay: 0.15s; }
+  .delay-4 { animation-delay: 0.22s; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── Page Header ── -->
+<div class="page-header d-flex align-items-end justify-content-between flex-wrap gap-2">
+  <div>
+    <h1><i class="bi bi-grid-1x2 me-2" style="color: var(--brand-accent);"></i>Dashboard</h1>
+    <p>Your CS50 study progress at a glance.</p>
+  </div>
+  <a href="{% url 'log_session' %}" class="btn btn-sm btn-primary-cs d-flex align-items-center gap-1">
+    <i class="bi bi-plus-lg"></i> New Session
+  </a>
+</div>
+
+<!-- ── Summary Cards Row ── -->
+<div class="row g-3 mb-4">
+
+  <!-- Total Hours -->
+  <div class="col-12 col-md-4 fade-up delay-1">
+    <div class="cs-card stat-card stat-hours h-100">
+      <div class="stat-icon"><i class="bi bi-clock-history"></i></div>
+      <div class="stat-label">Total Hours Logged</div>
+      <div class="stat-value">{{ total_hours|default:"0" }}<span style="font-size:1rem; color:var(--brand-muted);">h</span></div>
+      <div class="stat-sub">{{ sessions.count|default:"0" }} session{{ sessions.count|pluralize }} recorded</div>
+    </div>
+  </div>
+
+  <!-- Current Week -->
+  <div class="col-12 col-md-4 fade-up delay-2">
+    <div class="cs-card stat-card stat-week h-100">
+      <div class="stat-icon"><i class="bi bi-calendar-week"></i></div>
+      <div class="stat-label">Current Week</div>
+      <div class="stat-value">Wk&nbsp;{{ current_week|default:"—" }}</div>
+      <div class="stat-sub">{{ current_week_hours|default:"0" }} hrs logged this week</div>
+    </div>
+  </div>
+
+  <!-- Last Topic -->
+  <div class="col-12 col-md-4 fade-up delay-3">
+    <div class="cs-card stat-card stat-topic h-100">
+      <div class="stat-icon"><i class="bi bi-bookmark-check"></i></div>
+      <div class="stat-label">Last Topic Studied</div>
+      <div class="stat-value" style="font-size:1.25rem; word-break:break-word; line-height:1.3;">
+        {% if last_session %}{{ last_session.topic }}{% else %}&mdash;{% endif %}
+      </div>
+      <div class="stat-sub">
+        {% if last_session %}{{ last_session.date|date:"N j, Y" }}{% else %}No sessions yet{% endif %}
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Sessions Table ── -->
+<div class="cs-card fade-up delay-4">
+  <div class="p-4 pb-3 section-heading">
+    <span><i class="bi bi-table me-2"></i>All Study Sessions</span>
+    <span style="font-weight:400; color: var(--brand-muted);">{{ sessions.count|default:"0" }} total</span>
+  </div>
+
+  {% if sessions %}
+  <div class="table-responsive">
+    <table class="table cs-table align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Topic</th>
+          <th>Week</th>
+          <th>Date</th>
+          <th>Duration</th>
+          <th>Notes</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for session in sessions %}
+        <tr>
+          <td>
+            <span class="topic-badge" title="{{ session.topic }}">{{ session.topic }}</span>
+          </td>
+          <td>
+            <span class="week-chip"><i class="bi bi-hash"></i>{{ session.week_number }}</span>
+          </td>
+          <td>
+            <span class="date-cell">{{ session.date|date:"M j, Y" }}</span>
+          </td>
+          <td>
+            <span class="duration-pill">
+              <i class="bi bi-stopwatch me-1" style="color: var(--brand-muted); font-size:0.75rem;"></i>
+              {% widthratio session.duration_minutes 60 1 %}h
+              {% with remainder=session.duration_minutes|divisibleby:60 %}{% endwith %}
+              {{ session.duration_minutes }} min
+            </span>
+          </td>
+          <td style="max-width: 220px;">
+            {% if session.notes %}
+              <span class="text-truncate d-inline-block" style="max-width:200px; color: var(--brand-muted); font-size:0.85rem;"
+                    title="{{ session.notes }}">
+                {{ session.notes }}
+              </span>
+            {% else %}
+              <span style="color: var(--brand-border); font-size:0.85rem; font-style:italic;">—</span>
+            {% endif %}
+          </td>
+          <td class="text-end">
+            <div class="d-flex justify-content-end gap-1">
+              <a href="{% url 'edit_session' session.pk %}" class="btn-action btn-action-edit" title="Edit">
+                <i class="bi bi-pencil"></i>
+              </a>
+              <a href="{% url 'delete_session' session.pk %}" class="btn-action btn-action-del" title="Delete">
+                <i class="bi bi-trash3"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon"><i class="bi bi-journal-x"></i></div>
+    <p>No sessions logged yet.<br>
+      <a href="{% url 'log_session' %}" style="color: var(--brand-accent);">Log your first session →</a>
+    </p>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}
