@@ -26,7 +26,8 @@ SECRET_KEY = "django-insecure-md+17q!ups_qj#)kw-@=8&dzn)^^fj89)+0!!a^*@bn)c%tp$&
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'brchris8.pythonanywhere.com','127.0.0.1'
+    # 'brchris8.pythonanywhere.com','127.0.0.1'
+    'cs50-study-tracker.up.railway.app','127.0.0.1', 'localhost'
 ]
 
 
