@@ -19,7 +19,8 @@ def register(request):
 
 @login_required
 def dashboard(request):
-    sessions = StudySession.objects.all().order_by('-date')
+    
+    sessions = StudySession.objects.filter(user=request.user).order_by('-date')
     
     # Calculate stats for Claude's summary cards
     total_minutes = sessions.aggregate(Sum('duration_minutes'))['duration_minutes__sum'] or 0
@@ -39,25 +40,34 @@ def log_session(request):
     if request.method == "POST":
         form = SessionForm(request.POST)
         if form.is_valid():
-            form.save()
+            session = form.save(commit=False)
+            session.user = request.user  # Assign the session to the current user
+            session.save()
             return redirect('dashboard')
     else:
         form = SessionForm()
     return render(request, 'logs/log_session.html', {'form': form})
 
+@login_required
 def edit_session(request, pk):
-    session = get_object_or_404(StudySession, pk=pk)
+    # The filter user=request.user prevents editing other people's data
+    session = get_object_or_404(StudySession, pk=pk, user=request.user)
+    
     if request.method == "POST":
         form = SessionForm(request.POST, instance=session)
         if form.is_valid():
-            form.save()
+            session = form.save(commit=False)
+            session.user = request.user
+            session.save()
             return redirect('dashboard')
     else:
         form = SessionForm(instance=session)
     return render(request, 'logs/log_session.html', {'form': form, 'edit_mode': True})
 
+@login_required
 def delete_session(request, pk):
-    session = get_object_or_404(StudySession, pk=pk)
+    # Ensures only the owner can delete
+    session = get_object_or_404(StudySession, pk=pk, user=request.user)
     if request.method == "POST":
         session.delete()
         return redirect('dashboard')

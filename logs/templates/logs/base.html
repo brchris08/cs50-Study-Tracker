@@ -13,7 +13,9 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 
   <style>
-    :root {
+    /* ── Dark theme (default) ── */
+    :root,
+    [data-bs-theme="dark"] {
       --brand-bg:       #0d0f14;
       --brand-surface:  #13161e;
       --brand-card:     #181c27;
@@ -29,6 +31,30 @@
       --brand-sans:     'DM Sans', sans-serif;
     }
 
+    /* ── Light theme — reference dashboard palette ── */
+    [data-bs-theme="light"] {
+      --brand-bg:       #f0f1f8;
+      --brand-surface:  #ffffff;
+      --brand-card:     #ffffff;
+      --brand-border:   #e4e6f0;
+      --brand-accent:   #7c3aed;
+      --brand-accent2:  #4f8ef7;
+      --brand-success:  #16a34a;
+      --brand-warning:  #c2830a;
+      --brand-danger:   #dc2626;
+      --brand-text:     #1e1b2e;
+      --brand-muted:    #8a8fb5;
+      --brand-mono:     'JetBrains Mono', monospace;
+      --brand-sans:     'DM Sans', sans-serif;
+
+      --lt-stat-1-from: #b388f8;  --lt-stat-1-to: #7c3aed;
+      --lt-stat-2-from: #60a5fa;  --lt-stat-2-to: #2563eb;
+      --lt-stat-3-from: #f87171;  --lt-stat-3-to: #e02d2d;
+      --lt-stat-4-from: #fbbf24;  --lt-stat-4-to: #d97706;
+      --lt-input:       #f5f5fb;
+      --lt-purple:      #7c3aed;
+    }
+
     *, *::before, *::after { box-sizing: border-box; }
 
     body {
@@ -37,13 +63,16 @@
       font-family: var(--brand-sans);
       font-size: 0.95rem;
       min-height: 100vh;
+      transition: background-color 0.25s ease, color 0.25s ease;
     }
 
     /* ── Navbar ── */
     .navbar-cs50 {
+      /*background: var(--brand-surface);*/
       background: var(--brand-surface);
       border-bottom: 1px solid var(--brand-border);
       padding: 0.75rem 0;
+      transition: background 0.25s ease, border-color 0.25s ease;
     }
 
     .navbar-brand-text {
@@ -79,7 +108,7 @@
 
     .nav-pill-link.active {
       color: var(--brand-accent) !important;
-      background: rgba(79, 142, 247, 0.1);
+      background: rgba(59, 126, 240, 0.1);
     }
 
     .btn-logout {
@@ -101,6 +130,19 @@
       border-color: var(--brand-danger);
       color: var(--brand-danger);
       background: rgba(239, 68, 68, 0.08);
+    }
+
+    /* ── Theme toggle ── */
+    #theme-toggle {
+      color: var(--brand-muted);
+      font-size: 1rem;
+      transition: color 0.18s, transform 0.2s;
+      line-height: 1;
+    }
+
+    #theme-toggle:hover {
+      color: var(--brand-accent);
+      transform: rotate(18deg);
     }
 
     /* ── Layout ── */
@@ -134,12 +176,17 @@
       background: var(--brand-card);
       border: 1px solid var(--brand-border);
       border-radius: 12px;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.25s ease;
     }
 
-    .cs-card:hover {
+    [data-bs-theme="dark"] .cs-card:hover {
       border-color: rgba(79, 142, 247, 0.3);
       box-shadow: 0 0 0 1px rgba(79, 142, 247, 0.08), 0 8px 32px rgba(0,0,0,0.3);
+    }
+
+    [data-bs-theme="light"] .cs-card:hover {
+      border-color: rgba(59, 126, 240, 0.3);
+      box-shadow: 0 0 0 1px rgba(59, 126, 240, 0.06), 0 8px 28px rgba(0,0,0,0.07);
     }
 
     /* ── Tables ── */
@@ -226,6 +273,7 @@
       font-family: var(--brand-mono);
       border-top: 1px solid var(--brand-border);
       margin-top: 3rem;
+      transition: border-color 0.25s ease;
     }
 
     /* ── Alerts ── */
@@ -241,6 +289,28 @@
     ::-webkit-scrollbar-track { background: var(--brand-bg); }
     ::-webkit-scrollbar-thumb { background: var(--brand-border); border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--brand-muted); }
+
+    /* ── Light mode surface overrides ── */
+    [data-bs-theme="light"] .form-control,
+    [data-bs-theme="light"] .form-select {
+      background-color: var(--lt-input) !important;
+    }
+
+    /* White cards with soft shadow — like reference image */
+    [data-bs-theme="light"] .cs-card {
+      background: #ffffff;
+      border-color: var(--brand-border);
+      box-shadow: 0 2px 12px rgba(100, 80, 180, 0.07);
+    }
+
+    [data-bs-theme="light"] .cs-card:hover {
+      border-color: rgba(124, 58, 237, 0.3);
+      box-shadow: 0 4px 24px rgba(124, 58, 237, 0.12);
+    }
+
+    /* Auth card & form card */
+    [data-bs-theme="light"] .auth-card          { background: #ffffff; }
+    [data-bs-theme="light"] .form-card .cs-card { background: #ffffff; }
   </style>
 
   {% block extra_head %}{% endblock %}
@@ -289,6 +359,10 @@
               <i class="bi bi-box-arrow-right"></i> Logout
             </button>
           </form>
+          <button class="btn btn-link nav-link px-3" id="theme-toggle" type="button" aria-label="Toggle theme">
+            <i class="bi bi-sun-fill d-none" id="theme-icon-light"></i>
+            <i class="bi bi-moon-stars-fill" id="theme-icon-dark"></i>
+          </button>
         </div>
       </div>
 
@@ -322,6 +396,31 @@
 
   <!-- Bootstrap 5 JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
   {% block extra_scripts %}{% endblock %}
+
+  <script>
+    const storageKey = 'theme-preference';
+    const toggleBtn  = document.getElementById('theme-toggle');
+    const htmlEl     = document.documentElement;
+
+    const getTheme = () =>
+      localStorage.getItem(storageKey) ||
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+    const setTheme = (theme) => {
+      htmlEl.setAttribute('data-bs-theme', theme);
+      localStorage.setItem(storageKey, theme);
+      document.getElementById('theme-icon-light').classList.toggle('d-none', theme !== 'light');
+      document.getElementById('theme-icon-dark').classList.toggle('d-none',  theme !== 'dark');
+    };
+
+    // Apply saved theme immediately to avoid flash
+    setTheme(getTheme());
+
+    toggleBtn.addEventListener('click', () => {
+      setTheme(htmlEl.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark');
+    });
+  </script>
 </body>
 </html>

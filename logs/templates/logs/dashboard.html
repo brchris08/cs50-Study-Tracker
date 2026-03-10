@@ -169,6 +169,69 @@
   .delay-2 { animation-delay: 0.10s; }
   .delay-3 { animation-delay: 0.15s; }
   .delay-4 { animation-delay: 0.22s; }
+
+  /* ── Light mode — gradient stat cards (reference image style) ── */
+  [data-bs-theme="light"] .stat-card {
+    color: #fff;
+    border: none !important;
+  }
+
+  [data-bs-theme="light"] .stat-card .stat-label,
+  [data-bs-theme="light"] .stat-card .stat-value,
+  [data-bs-theme="light"] .stat-card .stat-sub,
+  [data-bs-theme="light"] .stat-card .stat-value span {
+    color: rgba(255,255,255,0.92) !important;
+  }
+
+  [data-bs-theme="light"] .stat-card .stat-icon {
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+  }
+
+  [data-bs-theme="light"] .stat-card.stat-hours {
+    background: linear-gradient(135deg, var(--lt-stat-1-from), var(--lt-stat-1-to));
+    box-shadow: 0 8px 24px rgba(124,58,237,0.35) !important;
+  }
+
+  [data-bs-theme="light"] .stat-card.stat-week {
+    background: linear-gradient(135deg, var(--lt-stat-2-from), var(--lt-stat-2-to));
+    box-shadow: 0 8px 24px rgba(37,99,235,0.30) !important;
+  }
+
+  [data-bs-theme="light"] .stat-card.stat-topic {
+    background: linear-gradient(135deg, var(--lt-stat-3-from), var(--lt-stat-3-to));
+    box-shadow: 0 8px 24px rgba(220,45,45,0.28) !important;
+  }
+
+  /* ── Light mode — sessions table with purple left accent bar ── */
+  [data-bs-theme="light"] .sessions-table-card {
+    border-left: 5px solid var(--lt-purple) !important;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 2px 16px rgba(124,58,237,0.10);
+  }
+
+  [data-bs-theme="light"] .sessions-table-card .section-heading {
+    color: var(--lt-purple);
+  }
+
+  [data-bs-theme="light"] .week-chip {
+    background: rgba(124,58,237,0.1);
+    color: #7c3aed;
+  }
+
+  [data-bs-theme="light"] .topic-badge {
+    background: rgba(124,58,237,0.08);
+    color: #6d28d9;
+  }
+
+  [data-bs-theme="light"] .cs-table thead th {
+    background: #f8f6ff;
+  }
+
+  [data-bs-theme="light"] .cs-table tbody tr:hover td {
+    background: #f5f0ff;
+  }
 </style>
 {% endblock %}
 
@@ -225,7 +288,7 @@
 </div>
 
 <!-- ── Sessions Table ── -->
-<div class="cs-card fade-up delay-4">
+<div class="cs-card sessions-table-card fade-up delay-4">
   <div class="p-4 pb-3 section-heading">
     <span><i class="bi bi-table me-2"></i>All Study Sessions</span>
     <span style="font-weight:400; color: var(--brand-muted);">{{ sessions.count|default:"0" }} total</span>
