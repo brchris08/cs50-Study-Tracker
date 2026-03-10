@@ -1,6 +1,8 @@
 from django.db import models
+from django.contrib.auth.models import User
 
-class StudySession(models.Model):  # If you named this StudySession, change it to Session
+class StudySession(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  
     topic = models.CharField(max_length=200)
     week_number = models.IntegerField(default=0)
     date = models.DateField()
