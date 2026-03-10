@@ -30,7 +30,7 @@ ALLOWED_HOSTS = [
     'cs50-study-tracker.up.railway.app','127.0.0.1', 'localhost'
     # '*'
 ]
-CSRF_TRUSTED_ORIGIN = [
+CSRF_TRUSTED_ORIGINS = [
     "https://cs50-study-tracker.up.railway.app",
 ]
 
