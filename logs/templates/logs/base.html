@@ -283,7 +283,7 @@
               <i class="bi bi-person-check me-1" style="color: var(--brand-accent);"></i>{{ user.username }}
             </span>
           {% endif %}
-          <form method="post"  class="m-0">
+          <form method="post" action="{% url 'logout' %}" class="m-0">
             {% csrf_token %}
             <button type="submit" class="btn-logout">
               <i class="bi bi-box-arrow-right"></i> Logout

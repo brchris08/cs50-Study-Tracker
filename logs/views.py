@@ -34,6 +34,7 @@ def dashboard(request):
         'current_week': current_week,
     })
 
+@login_required
 def log_session(request):
     if request.method == "POST":
         form = SessionForm(request.POST)
