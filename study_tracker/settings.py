@@ -28,6 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     # 'brchris8.pythonanywhere.com','127.0.0.1'
     'cs50-study-tracker.up.railway.app','127.0.0.1', 'localhost'
+    # '*'
 ]
 
 
