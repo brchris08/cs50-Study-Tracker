@@ -2,7 +2,22 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import StudySession
 from .forms import SessionForm
 from django.db.models import Sum
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
 
+def register(request):
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('dashboard')
+    else:
+        form = UserCreationForm()
+    return render(request, 'registration/register.html', {'form': form})
+
+@login_required
 def dashboard(request):
     sessions = StudySession.objects.all().order_by('-date')
     

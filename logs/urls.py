@@ -6,4 +6,5 @@ urlpatterns = [
     path("log-session/", views.log_session, name="log_session"),
     path('edit/<int:pk>/', views.edit_session, name='edit_session'),
     path('delete/<int:pk>/', views.delete_session, name='delete_session'),
+    path('accounts/register/', views.register, name='register'),
 ]
